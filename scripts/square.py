@@ -5,7 +5,7 @@ from mechsearch.explore import shortest_simple_paths
 
 printer = mod.GraphPrinter()
 grammar = Grammar(printer)
-grammar.load_file('grammars/square.json')
+grammar.load_file('data/grammars/square.json')
 
 state_space = StateSpace(grammar)
 path = None
