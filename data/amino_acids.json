@@ -1,0 +1,108 @@
+{
+	"graphs": [
+	    {
+	      "name": "Protonated Arginine",
+	      "dfs": "[Amino(C, Arg, *, *)][C]([C]([C]([N]([C]([N]([H])[H])=[N+]([H])[H])[H])([H])[H])([H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Arginine",
+	      "dfs": "[Amino(C, Arg, *, *)][C]([C]([C]([N]([H])[C]([N]([H])[H])=[N][H])([H])[H])([H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Asparagine",
+	      "dfs": "[Amino(C, Asn, *, *)][C]([C](=[O])[N]([H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Deprotonated Aspartate",
+	      "dfs": "[Amino(C, Asp, *, *)][C]([H])([C]([O-])=[O])[H]"
+	    },
+	    {
+	      "name": "Aspartate",
+	      "dfs": "[Amino(C, Asp, *, *)][C]([H])([C]([O][H])=[O])[H]"
+	    },
+	    {
+	      "name": "Deprotonated Cysteine",
+	      "dfs": "[Amino(C, Cys, *, *)][C]([H])([H])[S-]"
+	    },
+	    {
+	      "name": "Cysteine",
+	      "dfs": "[Amino(C, Cys, *, *)][C]([S][H])([H])[H]"
+	    },
+	    {
+	      "name": "Glutamine",
+	      "dfs": "[Amino(C, Gln, *, *)][C]([H])([H])[C]([H])([H])[C]([N]([H])[H])=[O]"
+	    },
+	    {
+	      "name": "Glutamate",
+	      "dfs": "[Amino(C, Glu, *, *)][C]([C]([C]([O][H])=[O])([H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Deprotonated Glutamate",
+	      "dfs": "[Amino(C, Glu, *, *)][C]([H])([H])[C]([H])([C]([O-])=[O])[H]"
+	    },
+	    {
+	      "name": "Histidine-delta",
+	      "dfs": "[Amino(C, His, *, *)][C]([H])([H])[C]1=[C]([H])[N]=[C]([H])[N]([H])1"
+	    },
+	    {
+	      "name": "Protonated Histidine-delta",
+	      "dfs": "[Amino(C, His, *, *)][C]([C]1=[C]([N+](=[C]([N](1)[H])[H])[H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Histidine-epsilon",
+	      "dfs": "[Amino(C, His, *, *)][C]([C]1=[C]([N]([C](=[N]1)[H])[H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Protonated Histidine-epsilon",
+	      "dfs": "[Amino(C, His, *, *)][C]([C]1=[C]([N]([C](=[N+](1)[H])[H])[H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Isoleucine",
+	      "dfs": "[C]([C]([C]([C]([H])([H])[H])([Amino(C, Ile, *, *)])[H])([H])[H])([H])([H])[H]"
+	    },
+	    {
+	      "name": "Leucine",
+	      "dfs": "[C]([C]([C]([H])([H])[H])([C]([H])([Amino(C, Leu, *, *)])[H])[H])([H])([H])[H]"
+	    },
+	    {
+	      "name": "Lysine",
+	      "dfs": "[N]([C]([C]([C]([C]([Amino(C, Lys, *, *)])([H])[H])([H])[H])([H])[H])([H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Protonated Lysine",
+	      "dfs": "[N+]([H])([H])([H])[C]([H])([H])[C]([C]([C]([Amino(C, Lys, *, *)])([H])[H])([H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Methionine",
+	      "dfs": "[C]([S][C]([C]([Amino(C, Met, *, *)])([H])[H])([H])[H])([H])([H])[H]"
+	    },
+	    {
+	      "name": "Phenylalanine",
+	      "dfs": "[Amino(C, Phe, *, *)][C]([C]1=[C]([C](=[C]([C](=[C](1)[H])[H])[H])[H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Serine",
+	      "dfs": "[Amino(C, Ser, *, *)][C]([O][H])([H])[H]"
+	    },
+	    {
+	      "name": "Threonine",
+	      "dfs": "[C]([C]([O][H])([Amino(C, Thr, *, *)])[H])([H])([H])[H]"
+	    },
+	    {
+	      "name": "Tryptophan",
+	      "dfs": "[Amino(C, Trp, *, *)][C]([C]1=[C]([N]([C]2=[C](1)[C](=[C]([C](=[C](2)[H])[H])[H])[H])[H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Tyrosine",
+	      "dfs": "[Amino(C, Tyr, *, *)][C]([C]1=[C]([C](=[C]([C](=[C](1)[H])[H])[O][H])[H])[H])([H])[H]"
+	    },
+	    {
+	      "name": "Deprotonated Tyrosine",
+	      "dfs": "[Amino(C, Tyr, *, *)][C]([H])([H])[C]1=[C]([C](=[C]([C](=[C](1)[H])[H])[O-])[H])[H]"
+	    },
+	    {
+	      "name": "Valine",
+	      "dfs": "[C]([H])([H])([C]([H])([C]([H])([H])[H])[Amino(C, Val, *, *)])[H]"
+	    }
+	]
+}

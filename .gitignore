@@ -1,0 +1,15 @@
+out/
+summary/
+
+__pycache__/
+.ipynb_checkpoints/
+
+.idea/
+
+energyplot.pdf
+
+data/rhea/rhea-mol.tar
+data/rhea/mol/
+data/rhea/state_space_mp
+
+state_spaces_fixed_amino/
