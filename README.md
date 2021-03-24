@@ -4,6 +4,10 @@ A python package prototype for the exploration of enzymatic mechanisms.
 The code is published as part of the supplementary material to the submitted paper
 "Graph Transformation for Enzymatic Mechanisms".
 
+## Demo
+We provide a demo version of our approach online which can be found at
+[https://cheminf.imada.sdu.dk/mechsearch/]{https://cheminf.imada.sdu.dk/mechsearch/}.
+
 ## Dependencies
 MechSearch depends on [NetworkX](https://networkx.org/) and a custom version of
 [MØD](https://cheminf.imada.sdu.dk/mod/) which can be found
