@@ -16,7 +16,7 @@ MechSearch depends on [NetworkX](https://networkx.org/) and a custom version of
 The dependencies can be installed as conda packages using the following command:
 
 ```
-conda create -n mechsearch -c jakobandersen/label/ECCB-21 -c jakobandersen -c conda-forge networkx mod
+conda create -n mechsearch -c jakobandersen/label/ECCB-21 -c jakobandersen -c conda-forge networkx mod=0.12.0.19
 conda activate mechsearch
 ```
 
