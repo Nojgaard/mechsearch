@@ -79,3 +79,9 @@ def error_m(print_this: str, c: str = "RED", function_name: str = None):
     message(print_this, c=c, lead_symbol="!", verbose=True, function_name=function_name)
     print(color(c, "Aborting!"))
     sys.exit()
+
+
+def locator(number: int, c: str = "RED"):
+    message(f"\n{'$'*20}", c=c, lead_symbol="")
+    message(f"${number:^18d}$", lead_symbol="", c=c)
+    message(f"{'$'*20}\n", c=c, lead_symbol="")
