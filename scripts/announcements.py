@@ -51,18 +51,21 @@ def message(print_this: str, c: str = "NORMAL", verbose: int = 1, end: str = "\n
     if function_name is not None:
         print_this = f"{function_name}(): {print_this}"
 
+    if lead_symbol != "":
+        lead_symbol = f" {lead_symbol} "
+
     lines = print_this.splitlines()
     if len(lines) == 1:
-        print(f"{lead_symbol} {color(c, print_this)}", end=end)
+        print(f"{lead_symbol}{color(c, print_this)}", end=end)
     elif len(lines) > 1:
         for line_id, line in enumerate(lines):
             if function_name is not None:
                 if line_id == 0:
-                    print(f"{lead_symbol} {color(c, line)}")
+                    print(f"{lead_symbol}{color(c, line)}")
                 else:
-                    print(f"{lead_symbol} {color(c, ' ' * (len(function_name) + 4) + line)}")
+                    print(f"{lead_symbol}{color(c, ' ' * (len(function_name) + 4) + line)}")
             else:
-                print(f"{lead_symbol} {color(c, line)}")
+                print(f"{lead_symbol}{color(c, line)}")
 
 
 def warning_m(print_this: str, c: str = "YELLOW", verbose: int = 1, function_name: str = None,
