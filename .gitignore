@@ -13,3 +13,5 @@ data/rhea/mol/
 data/rhea/state_space_mp
 
 state_spaces_fixed_amino/
+
+state_spaces/
