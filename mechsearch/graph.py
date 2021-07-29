@@ -275,23 +275,23 @@ class FilteredRule:
     def __init__(self, rule: mod.Rule):
         self._rule: mod.Rule = rule
 
-        self._used_vertices: Set[mod.RuleVertex] = set()
-        self._used_edges: Dict[Tuple[mod.RuleVertex, mod.RuleVertex], mod.RuleEdge] = {}
+        self._used_vertices: Set[mod.Rule.Vertex] = set()
+        self._used_edges: Dict[Tuple[mod.Rule.Vertex, mod.Rule.Vertex], mod.Rule.Edge] = {}
 
-        self._protected_vertices: Set[mod.RuleVertex] = set()
+        self._protected_vertices: Set[mod.Rule.Vertex] = set()
 
-        self._relabels: Dict[Union[mod.RuleLeftGraphVertex, mod.RuleContextGraphVertex], str] = {}
+        self._relabels: Dict[Union[mod.Rule.LeftGraph.Vertex, mod.Rule.ContextGraph.Vertex], str] = {}
 
     @property
     def rule(self) -> mod.Rule:
         return self._rule
 
     @property
-    def used_vertices(self) -> Set[mod.RuleVertex]:
+    def used_vertices(self) -> Set[mod.Rule.Vertex]:
         return set(self._used_vertices)
 
     @property
-    def used_edges(self) -> Dict[Tuple[mod.RuleVertex, mod.RuleVertex], mod.RuleEdge]:
+    def used_edges(self) -> Dict[Tuple[mod.Rule.Vertex, mod.Rule.Vertex], mod.Rule.Edge]:
         return dict(self._used_edges)
 
     def add_all(self):
@@ -304,7 +304,7 @@ class FilteredRule:
         # for ve in list(self.rule.vertices) + list(self.rule.edges):
         #     self.add(ve)
 
-    def add_vertex(self, vertex: mod.RuleVertex, protected: bool = False, left_label: str = None,
+    def add_vertex(self, vertex: mod.Rule.Vertex, protected: bool = False, left_label: str = None,
                    right_label: str = None):
         self._used_vertices.add(vertex)
 
@@ -321,21 +321,21 @@ class FilteredRule:
             assert(vertex.right not in self._relabels)
             self._relabels[vertex.right] = right_label
 
-    def add_edge(self, edge: mod.RuleEdge, protected: bool = False):
+    def add_edge(self, edge: mod.Rule.Edge, protected: bool = False):
         self._used_edges[_edge_to_tuple(edge)] = edge
 
         self.add_vertex(edge.source, protected)
         self.add_vertex(edge.target, protected)
 
-    # def add(self, ve: Union[mod.RuleVertex, mod.RuleEdge]):
-    #     if isinstance(ve, mod.RuleVertex):
+    # def add(self, ve: Union[mod.Rule.Vertex, mod.Rule.Edge]):
+    #     if isinstance(ve, mod.Rule.Vertex):
     #         self.add_vertex(ve)
-    #     elif isinstance(ve, mod.RuleEdge):
+    #     elif isinstance(ve, mod.Rule.Edge):
     #         self.add_edge(ve)
     #     else:
-    #         assert(False and "must be RuleVertex or RuleEdge")
+    #         assert(False and "must be Rule.Vertex or Rule.Edge")
 
-    def remove_vertex(self, vertex: mod.RuleVertex):
+    def remove_vertex(self, vertex: mod.Rule.Vertex):
         if not self.has_vertex(vertex) or vertex in self._protected_vertices:
             return
 
@@ -343,32 +343,32 @@ class FilteredRule:
         for e in vertex.incidentEdges:
             self.remove_edge(e)
 
-    def remove_edge(self, edge: mod.RuleEdge):
+    def remove_edge(self, edge: mod.Rule.Edge):
         if not self.has_edge(edge) or\
                 (edge.source in self._protected_vertices and edge.target in self._protected_vertices):
             return
 
         del self._used_edges[_edge_to_tuple(edge)]
 
-    def remove(self, ve: Union[mod.RuleVertex, mod.RuleEdge]):
-        if isinstance(ve, mod.RuleVertex):
+    def remove(self, ve: Union[mod.Rule.Vertex, mod.Rule.Edge]):
+        if isinstance(ve, mod.Rule.Vertex):
             self.remove_vertex(ve)
-        elif isinstance(ve, mod.RuleEdge):
+        elif isinstance(ve, mod.Rule.Edge):
             self.remove_edge(ve)
         else:
-            assert (False and "must be RuleVertex or RuleEdge")
+            assert (False and "must be Rule.Vertex or Rule.Edge")
 
-    def has_vertex(self, vertex: mod.RuleVertex):
+    def has_vertex(self, vertex: mod.Rule.Vertex):
         return vertex in self.used_vertices
 
-    def has_edge(self, e: mod.RuleEdge):
+    def has_edge(self, e: mod.Rule.Edge):
         endpoints = tuple(sorted([e.source, e.target]))
         return endpoints in self.used_edges
 
     def to_mod_rule(self):
         mod.ruleGMLString(self.to_gml(), add=False)
 
-    def to_gml(self, name: str = None, unlabelled_vertices: Optional[Set[mod.RuleLeftGraphVertex]] = None):
+    def to_gml(self, name: str = None, unlabelled_vertices: Optional[Set[mod.Rule.LeftGraph.Vertex]] = None):
         if name is None:
             name = self.rule.name
         left = Container()
@@ -424,7 +424,7 @@ class Container:
         self.edges = []
 
 
-def _edge_to_tuple(edge: mod.RuleEdge) -> Tuple[mod.RuleVertex, mod.RuleVertex]:
+def _edge_to_tuple(edge: mod.Rule.Edge) -> Tuple[mod.Rule.Vertex, mod.Rule.Vertex]:
     if edge.target.id < edge.source.id:
         return edge.target, edge.source
 
