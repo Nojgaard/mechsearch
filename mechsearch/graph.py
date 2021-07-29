@@ -366,7 +366,7 @@ class FilteredRule:
         return endpoints in self.used_edges
 
     def to_mod_rule(self):
-        mod.ruleGMLString(self.to_gml(), add=False)
+        return mod.ruleGMLString(self.to_gml(), add=False)
 
     def to_gml(self, name: str = None, unlabelled_vertices: Optional[Set[mod.Rule.LeftGraph.Vertex]] = None):
         if name is None:
