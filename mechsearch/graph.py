@@ -3,7 +3,7 @@ from mechsearch.atom_spectrum import AtomSpectrum
 from mechsearch.hydrogen_abstraction import abstract_graph, abstract_rule
 from mechsearch.rule_canonicalisation import CanonSmilesRule
 import mod
-from typing import Any, Dict, Iterable, List, Optional, Set
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 
 class Graph:
@@ -269,3 +269,182 @@ class Rule:
 
     def print(self, printer: mod.GraphPrinter):
         return self.rule.print(printer)
+
+
+class FilteredRule:
+    def __init__(self, rule: mod.Rule):
+        self._rule: mod.Rule = rule
+
+        self._used_vertices: Set[mod.RuleVertex] = set()
+        self._used_edges: Dict[Tuple[mod.RuleVertex, mod.RuleVertex], mod.RuleEdge] = {}
+
+        self._protected_vertices: Set[mod.RuleVertex] = set()
+
+        self._relabels: Dict[Union[mod.RuleLeftGraphVertex, mod.RuleContextGraphVertex], str] = {}
+
+    @property
+    def rule(self) -> mod.Rule:
+        return self._rule
+
+    @property
+    def used_vertices(self) -> Set[mod.RuleVertex]:
+        return set(self._used_vertices)
+
+    @property
+    def used_edges(self) -> Dict[Tuple[mod.RuleVertex, mod.RuleVertex], mod.RuleEdge]:
+        return dict(self._used_edges)
+
+    def add_all(self):
+        for vertex in self.rule.vertices:
+            self.add_vertex(vertex)
+
+        for edge in self.rule.edges:
+            self.add_edge(edge)
+
+        # for ve in list(self.rule.vertices) + list(self.rule.edges):
+        #     self.add(ve)
+
+    def add_vertex(self, vertex: mod.RuleVertex, protected: bool = False, left_label: str = None,
+                   right_label: str = None):
+        self._used_vertices.add(vertex)
+
+        if protected:
+            self._protected_vertices.add(vertex)
+
+        if left_label is not None:
+            assert(not vertex.left.isNull())
+            assert(vertex.left not in self._relabels)
+            self._relabels[vertex.left] = left_label
+
+        if right_label is not None:
+            assert(not vertex.right.isNull())
+            assert(vertex.right not in self._relabels)
+            self._relabels[vertex.right] = right_label
+
+    def add_edge(self, edge: mod.RuleEdge, protected: bool = False):
+        self._used_edges[_edge_to_tuple(edge)] = edge
+
+        self.add_vertex(edge.source, protected)
+        self.add_vertex(edge.target, protected)
+
+    # def add(self, ve: Union[mod.RuleVertex, mod.RuleEdge]):
+    #     if isinstance(ve, mod.RuleVertex):
+    #         self.add_vertex(ve)
+    #     elif isinstance(ve, mod.RuleEdge):
+    #         self.add_edge(ve)
+    #     else:
+    #         assert(False and "must be RuleVertex or RuleEdge")
+
+    def remove_vertex(self, vertex: mod.RuleVertex):
+        if not self.has_vertex(vertex) or vertex in self._protected_vertices:
+            return
+
+        self._used_vertices.remove(vertex)
+        for e in vertex.incidentEdges:
+            self.remove_edge(e)
+
+    def remove_edge(self, edge: mod.RuleEdge):
+        if not self.has_edge(edge) or\
+                (edge.source in self._protected_vertices and edge.target in self._protected_vertices):
+            return
+
+        del self._used_edges[_edge_to_tuple(edge)]
+
+    def remove(self, ve: Union[mod.RuleVertex, mod.RuleEdge]):
+        if isinstance(ve, mod.RuleVertex):
+            self.remove_vertex(ve)
+        elif isinstance(ve, mod.RuleEdge):
+            self.remove_edge(ve)
+        else:
+            assert (False and "must be RuleVertex or RuleEdge")
+
+    def has_vertex(self, vertex: mod.RuleVertex):
+        return vertex in self.used_vertices
+
+    def has_edge(self, e: mod.RuleEdge):
+        endpoints = tuple(sorted([e.source, e.target]))
+        return endpoints in self.used_edges
+
+    def to_mod_rule(self):
+        mod.ruleGMLString(self.to_gml(), add=False)
+
+    def to_gml(self, name: str = None, unlabelled_vertices: Optional[Set[mod.RuleLeftGraphVertex]] = None):
+        if name is None:
+            name = self.rule.name
+        left = Container()
+        context = Container()
+        right = Container()
+
+        for v in self.used_vertices:
+            if v.left.isNull():
+                right.vertices.append(v.right)
+            elif v.right.isNull():
+                left.vertices.append(v.right)
+            elif v.left.stringLabel != v.right.stringLabel:
+                left.vertices.append(v.left)
+                right.vertices.append(v.right)
+            else:
+                context.vertices.append(v.left)
+
+        for e in self.used_edges.values():
+            if e.left.isNull():
+                right.edges.append(e.right)
+            elif e.right.isNull():
+                left.edges.append(e.left)
+            elif e.left.stringLabel != e.right.stringLabel:
+                left.edges.append(e.left)
+                right.edges.append(e.right)
+            else:
+                context.edges.append(e.left)
+
+        out = [f'rule [ ruleID "{name}"']
+        rule_sections = (('left', left), ('context', context), ('right', right))
+        for name, container in rule_sections:
+            out.append(f'{name} [')
+            for u in container.vertices:
+                label: str = u.stringLabel
+                if name == "context" and unlabelled_vertices is not None and u in unlabelled_vertices:
+                    label = "*"
+                if u in self._relabels:
+                    label = self._relabels[u]
+
+                out.append(f'node [ id {u.id} label "{label}" ]')
+
+            for u in container.edges:
+                src, tar = u.source, u.target
+                out.append(f'edge [ source {src.id} target {tar.id} label "{u.stringLabel}" ]')
+            out.append(']')
+        out.append(']')
+        return '\n'.join(out)
+
+
+class Container:
+    def __init__(self):
+        self.vertices = []
+        self.edges = []
+
+
+def _edge_to_tuple(edge: mod.RuleEdge) -> Tuple[mod.RuleVertex, mod.RuleVertex]:
+    if edge.target.id < edge.source.id:
+        return edge.target, edge.source
+
+    return edge.source, edge.target
+
+
+def add_reaction_center(rule: FilteredRule, verbosity: int = 0) -> FilteredRule:
+    if verbosity:
+        print(f"\tAdding reaction center for rule {rule.rule}")
+
+    for vertex in rule.rule.vertices:
+        if vertex.left.stringLabel != vertex.right.stringLabel:
+            rule.add_vertex(vertex, True)
+
+    for edge in rule.rule.edges:
+        if edge.left.isNull() or edge.right.isNull() or edge.left.stringLabel != edge.right.stringLabel:
+            rule.add_edge(edge, True)
+
+    for edge in rule.rule.edges:
+        if edge.source in rule.used_vertices and edge.target in rule.used_vertices:
+            rule.add_edge(edge)
+
+    return rule
