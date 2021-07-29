@@ -52,7 +52,7 @@ def message(print_this: str, c: str = "NORMAL", verbose: int = 1, end: str = "\n
         print_this = f"{function_name}(): {print_this}"
 
     if lead_symbol != "":
-        lead_symbol = f" {lead_symbol} "
+        lead_symbol = f"{lead_symbol} "
 
     lines = print_this.splitlines()
     if len(lines) == 1:
