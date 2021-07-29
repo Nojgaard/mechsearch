@@ -4,6 +4,8 @@ from data.rhea.db import RheaDB
 from mechsearch.state_space import StateSpace, Path
 from scripts.announcements import *
 import json
+import mod
+from typing import Iterable
 
 
 def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
@@ -26,3 +28,22 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
             verbose=verbose, verbose_level_threshold=2)
     state_space.freeze()
     return state_space
+
+
+def mod_labelled_graph_to_gml(vertices: Iterable[mod.Graph.Vertex], edges: Iterable[mod.Graph.Edge]):
+    out = "graph[\n"
+    for v in vertices:
+        out += f"\tnode[ id {v.id} label \"{v.stringLabel}\" ]\n"
+
+    for e in edges:
+        out += f"\tedge [ source {e.source.id} target {e.target.id} label \"{e.stringLabel}\" ]\n"
+
+    out += "]"
+    return out
+
+
+def seperate_mod_rule_to_gml(arule: mod.Rule):
+    return {
+        "left": mod_labelled_graph_to_gml([v for v in arule.left.vertices], [e for e in arule.left.edges]),
+        "right": mod_labelled_graph_to_gml([v for v in arule.right.vertices], [e for e in arule.right.edges])
+    }
