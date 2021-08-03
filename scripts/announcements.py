@@ -92,6 +92,6 @@ def locator(number: int, c: str = "RED"):
 
 def bool_color(this: bool) -> str:
     if this:
-        return color("GREEN", this)
+        return color("GREEN", f"{this}")
     elif not this:
-        return color("RED", this)
+        return color("RED", f"{this}")
