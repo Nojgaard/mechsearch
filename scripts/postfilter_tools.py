@@ -75,6 +75,17 @@ def seperate_nx_connected_components(graph: nx.Graph):
     return sep_graphs
 
 
+def nx_to_gml(agraph: nx.Graph) -> str:
+    gml = "graph [\n"
+    for _n in agraph.nodes:
+        gml += f"\tnode [ id {_n} label \"{agraph.nodes[_n]['label']}\"]\n"
+    for _e in agraph.edges:
+        src, trg = _e
+        gml += f"\tedge [ source {src} target {trg} label \"{agraph.edges[_e]['label']}\"]\n"
+    gml += "]"
+    return gml
+
+
 def subgraph_iso(rule_side: nx.Graph, query_rule: nx.Graph,
                  extra: str = None, verbose: int = 0):
     verbosity = 3
@@ -91,6 +102,7 @@ def subgraph_iso(rule_side: nx.Graph, query_rule: nx.Graph,
             ).subgraph_is_isomorphic() is True
             ), False
         )
+        print(bool_color(check))
         if check is True:
             all_checks.add(check)
 
@@ -127,11 +139,12 @@ def merge_rule_left_right(_rule: mod.Rule) -> nx.Graph:
     _e: mod.Graph.Edge
 
     # create a gml
+    seperator = ";"
     gml = "graph [\n"
 
     # Loop through vertices
     for _v in _rule.vertices:
-        lbl = f"({_v.left.stringLabel}|{_v.right.stringLabel})"
+        lbl = f"({_v.left.stringLabel}{seperator}{_v.right.stringLabel})"
         gml += f"\tnode [ id {_v.id} label \"{lbl}\" ]\n"
 
     # Loop through edges
@@ -143,7 +156,7 @@ def merge_rule_left_right(_rule: mod.Rule) -> nx.Graph:
             except mod.libpymod.LogicError:
                 lbl_lr[_side] = ""
 
-        lbl = f"({lbl_lr['left']}|{lbl_lr['right']})"
+        lbl = f"({lbl_lr['left']}{seperator}{lbl_lr['right']})"
         gml += f"\tedge [ source {_e.source.id} target {_e.target.id} label \"{lbl}\" ]\n"
     gml += "]"
     return nx.parse_gml(gml, label="id")
