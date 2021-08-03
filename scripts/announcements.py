@@ -20,7 +20,7 @@ class BColors:
     NORMAL = '\033[0m'
 
 
-def color(acolor: str, string: str):
+def color(acolor: str, string: str) -> object:
     return getattr(BColors, acolor) + string + BColors.ENDC
 
 
@@ -92,6 +92,6 @@ def locator(number: int, c: str = "RED"):
 
 def bool_color(this: bool) -> str:
     if this:
-        return color("GREEN", is_iso_str)
+        return color("GREEN", this)
     elif not this:
-        return color("RED", is_iso_str)
+        return color("RED", this)
