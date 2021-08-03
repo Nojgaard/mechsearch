@@ -14,8 +14,8 @@ if __name__ == '__main__':
     state_space_loc = path.join(state_space_dir, "state_space.json")
     dg_loc = path.join(state_space_dir, "dg.dg")
     # rule_loc = "tmp/rule.gml"
-    rule_loc = "tmp/rule_6.gml"
-    # rule_loc = "tmp/rule_4.gml"
+    # rule_loc = "tmp/rule_6.gml"
+    rule_loc = "tmp/rule_4.gml"
 
     # Loading data
     message(f"Loading state space for {rhea_id}")
@@ -50,37 +50,31 @@ if __name__ == '__main__':
             verbose=verbose)
 
     q_rule_gml = seperate_mod_rule_to_gml(query_rule)
-    q_rule_left_nx: nx.Graph = nx.parse_gml(q_rule_gml["left"], label="id")
-    q_rule_right_nx: nx.Graph = nx.parse_gml(q_rule_gml["right"], label="id")
+    merged_q_rule = merge_rule_left_right(rule_rxn_center.to_mod_rule())
 
     # check subgraph isomorphisms
-    keep_these_rules = []
+    keep_these_rules = list()
     r_i: mod.Rule
+    left_true, right_true, lr_true = 0, 0, 0
     for i, r_i in enumerate(list(used_rules)):
-        if r_i.name not in  ["r_{5195}", "r_{5092}"]:
-            continue
+        # if r_i.name not in  ["r_{5195}", "r_{5092}"]:
+        #     continue
         message(f"{r_i.name} | id: {r_i.id}")
         r_i_rxn_center = msg.FilteredRule(r_i)
         msg.add_reaction_center(r_i_rxn_center)
-        r_gml = seperate_mod_rule_to_gml(r_i)
-        r_left_nx = nx.parse_gml(r_gml["left"], label="id")
-        r_right_nx = nx.parse_gml(r_gml["right"], label="id")
-        # left_iso = subgraph_iso(r_left_nx, q_rule_left_nx, extra="---\nleft", verbose=verbose)
-        # right_iso = subgraph_iso(r_right_nx, q_rule_right_nx, extra="---\nright", verbose=verbose)
 
-        left_iso = subgraph_iso_connected(r_left_nx, q_rule_left_nx)
-        right_iso = subgraph_iso(r_right_nx, q_rule_right_nx)
+        merged_r_i = merge_rule_left_right(r_i_rxn_center.to_mod_rule())
+        is_iso = subgraph_iso_connected(merged_r_i, merged_q_rule)
 
-        if left_iso is True and right_iso is True:
+        if is_iso is True:
             keep_these_rules.append(r_i)
 
-        message(f"Left: {left_iso} | Right: {right_iso}", c="GREEN", verbose=verbose)
-
-        r_i_rxn_center.to_mod_rule().print()
-
-    message(f"Found {len(keep_these_rules)} into which the query can be embedded.", verbose=verbose)
-    # # for _ in keep_these_rules:
-    # #     _.print()
+        is_iso_str = f"{is_iso}"
+        if is_iso is True:
+            is_iso_str = color("GREEN", is_iso_str)
+        elif is_iso is False:
+            is_iso_str = color("RED", is_iso_str)
+        message(is_iso_str)
 
     # TODO: check for rule embedding
 

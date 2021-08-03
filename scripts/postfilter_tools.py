@@ -7,6 +7,9 @@ import json
 import mod
 from typing import Iterable
 import networkx as nx
+import re
+from networkx import Graph
+from networkx.algorithms.isomorphism import GraphMatcher
 
 
 def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
@@ -75,35 +78,21 @@ def seperate_nx_connected_components(graph: nx.Graph):
 def subgraph_iso(rule_side: nx.Graph, query_rule: nx.Graph,
                  extra: str = None, verbose: int = 0):
     verbosity = 3
-    if extra != "":
-        message(extra, verbose=verbose, c="BLUE", verbose_level_threshold=verbosity)
-    all_checks = list()
+    all_checks = set()
     subg_q_rule: nx.Graph
-    message(f"Number of connected components: {nx.number_connected_components(query_rule)}", c="BLUE",
-            verbose=verbose, verbose_level_threshold=verbosity)
     for _i, subg_q_rule in enumerate(seperate_nx_connected_components(query_rule)):
-        message(f"connected component {_i}", c="BLUE",
-                verbose=verbose, verbose_level_threshold=verbosity)
-        message(f"Number of nodes: {subg_q_rule.number_of_nodes()}", c="BLUE",
-                verbose=verbose, verbose_level_threshold=verbosity)
-        for v in subg_q_rule.nodes:
-            message(f"{subg_q_rule.nodes[v]}: {subg_q_rule.nodes[v]['label']}", c="BLUE",
-                    verbose=verbose, verbose_level_threshold=verbosity)
-        message(f"Number of edges: {subg_q_rule.number_of_edges()}", c="BLUE",
-                verbose=verbose, verbose_level_threshold=verbosity)
-        for e in subg_q_rule.edges:
-            message(f"{subg_q_rule.edges[e]}: {subg_q_rule.edges[e]['label']}", c="BLUE",
-                    verbose=verbose, verbose_level_threshold=verbosity)
         check = next(
             (
                 True for subg_rule in seperate_nx_connected_components(rule_side)
-                if nx.algorithms.isomorphism.GraphMatcher(subg_rule, subg_q_rule).subgraph_is_isomorphic() is True
+                if nx.algorithms.isomorphism.GraphMatcher(
+                subg_rule, subg_q_rule,
+                lambda node1, node2: re.match(node1["label"], node2["label"]) is not None,
+                lambda edge1, edge2: edge1["label"] == edge2["label"]
+            ).subgraph_is_isomorphic() is True
             ), False
         )
-        message(f"{check}", c="BLUE", verbose=verbose, verbose_level_threshold=verbosity)
         if check is True:
-            all_checks.append(check)
-    message(f"{all_checks} {extra}", c="BLUE", verbose_level_threshold=verbosity, verbose=verbose)
+            all_checks.add(check)
 
     if False in all_checks or len(all_checks) == 0:
         return False
@@ -114,5 +103,47 @@ def subgraph_iso(rule_side: nx.Graph, query_rule: nx.Graph,
 def subgraph_iso_connected(rule_side: nx.Graph, query_rule: nx.Graph,
                            extra: str = None, verbose: int = 0):
     verbosity = 3
-    iso = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule).subgraph_is_isomorphic()
+    # iso = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule).subgraph_is_isomorphic()
+    matcher = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule,
+                                                     lambda node1, node2: re.match(node1["label"],
+                                                                                   node2["label"]) is not None,
+                                                     lambda edge1, edge2: edge1["label"] == edge2["label"])
+    iso = matcher.subgraph_is_isomorphic()
     return iso
+
+
+def _subgraph_iso_iter(rule_side: nx.Graph, query_rule: nx.Graph):
+    matcher = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule,
+                                                     lambda node1, node2: re.match(node1["label"],
+                                                                                   node2["label"]) is not None,
+                                                     lambda edge1, edge2: edge1["label"] == edge2["label"])
+
+
+def merge_rule_left_right(_rule: mod.Rule) -> nx.Graph:
+    """
+    Merges left and right side of a mod rule and creates a NetworkX graph.
+    """
+    _v: mod.Graph.Vertex
+    _e: mod.Graph.Edge
+
+    # create a gml
+    gml = "graph [\n"
+
+    # Loop through vertices
+    for _v in _rule.vertices:
+        lbl = f"({_v.left.stringLabel}|{_v.right.stringLabel})"
+        gml += f"\tnode [ id {_v.id} label \"{lbl}\" ]\n"
+
+    # Loop through edges
+    for _e in _rule.edges:
+        lbl_lr = {"left": None, "right": None}
+        for _side in ["left", "right"]:
+            try:
+                lbl_lr[_side] = getattr(_e, _side).stringLabel
+            except mod.libpymod.LogicError:
+                lbl_lr[_side] = ""
+
+        lbl = f"({lbl_lr['left']}|{lbl_lr['right']})"
+        gml += f"\tedge [ source {_e.source.id} target {_e.target.id} label \"{lbl}\" ]\n"
+    gml += "]"
+    return nx.parse_gml(gml, label="id")
