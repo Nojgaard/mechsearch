@@ -14,8 +14,8 @@ if __name__ == '__main__':
     state_space_loc = path.join(state_space_dir, "state_space.json")
     dg_loc = path.join(state_space_dir, "dg.dg")
     # rule_loc = "tmp/rule.gml"
-    # rule_loc = "tmp/rule_6.gml"
-    rule_loc = "tmp/rule_4.gml"
+    rule_loc = "tmp/rule_6.gml"
+    # rule_loc = "tmp/rule_4.gml"
 
     # Loading data
     message(f"Loading state space for {rhea_id}")
@@ -51,30 +51,28 @@ if __name__ == '__main__':
 
     q_rule_gml = seperate_mod_rule_to_gml(query_rule)
     merged_q_rule = merge_rule_left_right(rule_rxn_center.to_mod_rule())
+    mod.graphGMLString(nx_to_gml(merged_q_rule), "merged query").print()
 
     # check subgraph isomorphisms
     keep_these_rules = list()
     r_i: mod.Rule
     left_true, right_true, lr_true = 0, 0, 0
     for i, r_i in enumerate(list(used_rules)):
-        # if r_i.name not in  ["r_{5195}", "r_{5092}"]:
-        #     continue
+        if r_i.name not in  ["r_{5195}", "r_{5092}"]:
+            continue
         message(f"{r_i.name} | id: {r_i.id}")
         r_i_rxn_center = msg.FilteredRule(r_i)
         msg.add_reaction_center(r_i_rxn_center)
 
         merged_r_i = merge_rule_left_right(r_i_rxn_center.to_mod_rule())
-        is_iso = subgraph_iso_connected(merged_r_i, merged_q_rule)
+        is_iso = subgraph_iso(merged_r_i, merged_q_rule)
+
+        mod.graphGMLString(nx_to_gml(merged_r_i), r_i.name).print()
 
         if is_iso is True:
             keep_these_rules.append(r_i)
 
-        is_iso_str = f"{is_iso}"
-        if is_iso is True:
-            is_iso_str = color("GREEN", is_iso_str)
-        elif is_iso is False:
-            is_iso_str = color("RED", is_iso_str)
-        message(is_iso_str)
+        message(bool_color(is_iso))
 
     # TODO: check for rule embedding
 
