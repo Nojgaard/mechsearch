@@ -20,7 +20,7 @@ class BColors:
     NORMAL = '\033[0m'
 
 
-def color(acolor: str, string: str) -> object:
+def color(acolor: str, string: str) -> str:
     return getattr(BColors, acolor) + string + BColors.ENDC
 
 
