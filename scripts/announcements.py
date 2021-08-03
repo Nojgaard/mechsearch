@@ -88,3 +88,10 @@ def locator(number: int, c: str = "RED"):
     message(f"\n{'$'*20}", c=c, lead_symbol="")
     message(f"${number:^18d}$", lead_symbol="", c=c)
     message(f"{'$'*20}\n", c=c, lead_symbol="")
+
+
+def bool_color(this: bool) -> str:
+    if this:
+        return color("GREEN", is_iso_str)
+    elif not this:
+        return color("RED", is_iso_str)
