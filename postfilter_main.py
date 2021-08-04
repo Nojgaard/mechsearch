@@ -1,3 +1,4 @@
+import os
 import sys
 from os import path
 import argparse
@@ -5,7 +6,7 @@ from scripts.announcements import *
 # Tackling the MØD issue
 mod_loc_file = "mod.location"
 if not path.exists(mod_loc_file):
-    error_m("Create a file \"mod.location\" with the location of MØD")
+    error_m(f"Create a file \"{os.getcwd()}/mod.location\" with the location of MØD.")
 with open("mod.location", "r") as f:
     mod_loc = f.read().splitlines()[0]
 sys.path.append(mod_loc)
@@ -44,7 +45,6 @@ if __name__ == '__main__':
 
     # Extracting used rules from the state space
     used_rules = state_space.edge_rules_derivation_graph()
-
     # Loading query rule
     query_rule: mod.Rule = mod.ruleGML(rule_loc)
     # Check whether the left and the right side are isomorphic
