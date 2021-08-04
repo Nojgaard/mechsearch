@@ -1,11 +1,10 @@
 import os
 import sys
-from os import path
 import argparse
 from scripts.announcements import *
 # Tackling the MØD issue
 mod_loc_file = "mod.location"
-if not path.exists(mod_loc_file):
+if not os.path.exists(mod_loc_file):
     error_m(f"Create a file \"{os.getcwd()}/mod.location\" with the location of MØD.")
 with open("mod.location", "r") as f:
     mod_loc = f.read().splitlines()[0]
@@ -27,6 +26,10 @@ if __name__ == '__main__':
                         help="directory of the state spaces")
     parser.add_argument("-q", "--query", type=str, required=True,
                         help="The query in a GML rule format")
+    parser.add_argument("-j", "--njobs", type=int, default=4,
+                        help="Number of processes to use for mod_post")
+    parser.add_argument("--report", action="store_true",
+                        help="Write a short summary file")
     args = parser.parse_args()
     verbose = args.verbose
     mod_print = args.mod_print
@@ -34,9 +37,9 @@ if __name__ == '__main__':
     rhea_id = check_rheaid_format(args.rheaid)
     if rhea_id is None:
         error_m("Check RHEA ID fromat (e.g., \"RHEA:10076\")")
-    state_space_dir = path.join(args.state_space_root, rhea_id)
-    state_space_loc = path.join(state_space_dir, "state_space.json")
-    dg_loc = path.join(state_space_dir, "dg.dg")
+    state_space_dir = os.path.join(args.state_space_root, rhea_id)
+    state_space_loc = os.path.join(state_space_dir, "state_space.json")
+    dg_loc = os.path.join(state_space_dir, "dg.dg")
     rule_loc = args.query
 
     # Loading data
@@ -99,6 +102,14 @@ if __name__ == '__main__':
     del builder
     message(f"The query could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.",
             verbose=verbose, c="GREEN")
+
+    if args.report:
+        if not os.path.isdir("short_summary"):
+            os.mkdir(os.path.join(os.getcwd(), "short_summary"))
+        with open(f"short_summary/{rhea_id}.txt", "w") as f:
+            f.write(f"The query could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.")
+        message(f"Wrote a short summary for {rhea_id}", verbose=verbose)
+
     dg.print()
     if mod_print:
-        call("mod_post -j 4", shell=True)
+        call(f"mod_post -j {args.njobs}", shell=True)
