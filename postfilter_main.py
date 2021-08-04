@@ -8,7 +8,7 @@ import mechsearch.graph as msg
 import networkx as nx
 
 if __name__ == '__main__':
-    verbose = 3
+    verbose = 2
     rhea_id = "RHEA:10076"
     state_space_dir = f"state_spaces/{rhea_id}"
     state_space_loc = path.join(state_space_dir, "state_space.json")
@@ -16,6 +16,7 @@ if __name__ == '__main__':
     # rule_loc = "tmp/rule.gml"
     # rule_loc = "tmp/rule_6.gml"
     rule_loc = "tmp/rule_7.gml"
+    # rule_loc = "tmp/rule_8.gml"
     # rule_loc = "tmp/rule_4.gml"
 
     # Loading data
@@ -59,23 +60,21 @@ if __name__ == '__main__':
     r_i: mod.Rule
     left_true, right_true, lr_true = 0, 0, 0
     for i, r_i in enumerate(list(used_rules)):
-        if r_i.name not in  ["r_{5195}", "r_{5092}"]:
-            continue
-        message(f"{r_i.name} | id: {r_i.id}")
+        # if r_i.name not in  ["r_{5195}", "r_{5092}"]:
+        #     continue
+        message(f"{r_i.name} | id: {r_i.id}", verbose=verbose, verbose_level_threshold=3)
         r_i_rxn_center = msg.FilteredRule(r_i)
         msg.add_reaction_center(r_i_rxn_center)
 
         merged_r_i = merge_rule_left_right(r_i_rxn_center.to_mod_rule())
-        is_iso = subgraph_iso(merged_r_i, merged_q_rule)
-
-        r_i.print()
-        r_i_rxn_center.to_mod_rule().print()
-        mod.graphGMLString(nx_to_gml(merged_r_i), f"{r_i.name}:merged").print()
+        is_iso = subgraph_iso_connected(merged_r_i, merged_q_rule)
 
         if is_iso is True:
             keep_these_rules.append(r_i)
 
-        message(bool_color(is_iso))
+    message(f"Found {len(keep_these_rules)} rules where the query can be embedded.", verbose=verbose)
+    for r in keep_these_rules:
+        r.print()
 
     # TODO: check for rule embedding
 

@@ -113,22 +113,23 @@ def subgraph_iso(rule_side: nx.Graph, query_rule: nx.Graph,
 
 
 def subgraph_iso_connected(rule_side: nx.Graph, query_rule: nx.Graph,
-                           extra: str = None, verbose: int = 0):
+                           verbose: int = 0):
     verbosity = 3
-    # iso = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule).subgraph_is_isomorphic()
-    matcher = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule,
-                                                     lambda node1, node2: re.match(node1["label"],
-                                                                                   node2["label"]) is not None,
-                                                     lambda edge1, edge2: edge1["label"] == edge2["label"])
+    matcher = nx.algorithms.isomorphism.GraphMatcher(query_rule, rule_side,
+                                                     lambda node1, node2: node1["label"] == node2["label"],
+                                                     lambda edge1, edge2: edge1["label"] == edge2["label"]
+                                                     )
     iso = matcher.subgraph_is_isomorphic()
+    message(bool_color(iso), verbose=verbose, verbose_level_threshold=verbosity)
     return iso
 
 
-def _subgraph_iso_iter(rule_side: nx.Graph, query_rule: nx.Graph):
+def subgraph_iso_iter(rule_side: nx.Graph, query_rule: nx.Graph):
     matcher = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule,
-                                                     lambda node1, node2: re.match(node1["label"],
-                                                                                   node2["label"]) is not None,
+                                                     lambda node1, node2: re.match(node1["label"], node2["label"]) is not None,
                                                      lambda edge1, edge2: edge1["label"] == edge2["label"])
+    for morphism in matcher.subgraph_monomorphisms_iter():
+        print(morphism)
 
 
 def merge_rule_left_right(_rule: mod.Rule) -> nx.Graph:
