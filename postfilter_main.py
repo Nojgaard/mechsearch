@@ -14,7 +14,8 @@ if __name__ == '__main__':
     state_space_loc = path.join(state_space_dir, "state_space.json")
     dg_loc = path.join(state_space_dir, "dg.dg")
     # rule_loc = "tmp/rule.gml"
-    rule_loc = "tmp/rule_6.gml"
+    # rule_loc = "tmp/rule_6.gml"
+    rule_loc = "tmp/rule_7.gml"
     # rule_loc = "tmp/rule_4.gml"
 
     # Loading data
@@ -67,7 +68,9 @@ if __name__ == '__main__':
         merged_r_i = merge_rule_left_right(r_i_rxn_center.to_mod_rule())
         is_iso = subgraph_iso(merged_r_i, merged_q_rule)
 
-        mod.graphGMLString(nx_to_gml(merged_r_i), r_i.name).print()
+        r_i.print()
+        r_i_rxn_center.to_mod_rule().print()
+        mod.graphGMLString(nx_to_gml(merged_r_i), f"{r_i.name}:merged").print()
 
         if is_iso is True:
             keep_these_rules.append(r_i)
