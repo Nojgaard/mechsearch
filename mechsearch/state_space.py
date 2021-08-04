@@ -516,7 +516,7 @@ class StateSpace:
         """
         return set(v.graph for v in self.vertices_derivation_graph())
 
-    def hyperedges_using_rules(self, _rules: Iterable[mod.Rule]) -> Iterable[mod.DGHyperEdge]:
+    def hyperedges_using_rules(self, _rules: Iterable[mod.Rule]) -> List[mod.DGHyperEdge]:
         """
         Returns a list of hyperedges which are using the specified rules.
         :param _rules: The rules we are looking for.
