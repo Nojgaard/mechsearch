@@ -497,3 +497,9 @@ class StateSpace:
         Returns the edges used in the derivation graph.
         """
         return set(r for e in self.derivation_graph.edges for r in e.rules)
+
+    def vertices_derivation_graph(self) -> set:
+        """
+        Returns the vertices of the derivation graph.
+        """
+        return set(v.graph for v in self.derivation_graph.vertices)
