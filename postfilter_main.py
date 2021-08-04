@@ -5,7 +5,7 @@ import mod
 from mod import DGHyperEdge, DGVertex
 import sys
 import mechsearch.graph as msg
-import networkx as nx
+from mechsearch.state_space import StateSpaceEdge
 
 if __name__ == '__main__':
     verbose = 2
@@ -56,30 +56,23 @@ if __name__ == '__main__':
             r.print()
 
     # Collect source and targets from the hyperedges based on the collected rules
-    keep_hyperedges = state_space.hyperedges_using_rules(keep_these_rules)
-    dghe_sources = [[g.graph for g in v.sources] for v in keep_hyperedges]
-    dghe_targets = [[g.graph for g in v.targets] for v in keep_hyperedges]
-    message(f"Found {len(keep_hyperedges)} hyperedges using the rule(s)", verbose=verbose)
+    keep_sp_edges = state_space.statespace_using_rules(keep_these_rules)
+    message(f"Found {len(keep_sp_edges)} state space edges associated to the query", verbose=verbose)
 
-
-    sys.exit()
+    # sys.exit()
+    # Check whether the query rule can be applied to the collected source graphs
 
     # Create new DG with all graphs from the state space
-    graphs = state_space.vertice_graphs_derivation_graph()
-    dg = mod.DG(graphDatabase=graphs)  # provide all the graphs from the state space
+    # provide all the graphs from the state space
+    dg = mod.DG(graphDatabase=state_space.vertice_graphs_derivation_graph())
     builder = dg.build()
     # Need to take dynamic dg because the dg builder has been blocked by Jakob
     ddg = mod.makeDynamicDG(builder._builder, [query_rule])
     he: DGHyperEdge
     t: DGVertex
-    for e in edges:
-        hyper_edges = ddg.apply(e["src"])
-        # TODO: check number of graphs\
-        for i, he in enumerate(hyper_edges):
-            for t in he.targets:
-                print(t.graph, e["trgt"])
-            # for s in he.targets:
-            #     print(s)
+    edge: StateSpaceEdge
+    for edge in keep_sp_edges:
+        apply = ddg.apply([g.graph for g in edge.source.state.graph_multiset.graphs])
 
     del builder
     # dg.print()
