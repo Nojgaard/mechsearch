@@ -9,6 +9,7 @@ import networkx as nx
 
 if __name__ == '__main__':
     verbose = 2
+    mod_print = False
     rhea_id = "RHEA:10076"
     state_space_dir = f"state_spaces/{rhea_id}"
     state_space_loc = path.join(state_space_dir, "state_space.json")
@@ -35,7 +36,8 @@ if __name__ == '__main__':
 
     # Loading query rule
     query_rule: mod.Rule = mod.ruleGML(rule_loc)
-    query_rule.print()
+    if mod_print:
+        query_rule.print()
 
     # Extracting rule reaction center
     rule_rxn_center = msg.FilteredRule(query_rule)
@@ -49,8 +51,9 @@ if __name__ == '__main__':
     keep_these_rules = [r for r in used_rules if is_embeddable(r, merged_rxn_center_q_rule) is True]
 
     message(f"Found {len(keep_these_rules)} rules where the query can be embedded.", verbose=verbose)
-    # for r in keep_these_rules:
-        # r.print()
+    if mod_print:
+        for r in keep_these_rules:
+            r.print()
 
     # Collect source and targets from the hyperedges based on the collected rules
     keep_hyperedges = state_space.hyperedges_using_rules(keep_these_rules)
