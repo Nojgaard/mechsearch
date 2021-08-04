@@ -1,19 +1,20 @@
 from mechsearch.grammar import Grammar
 import scripts.rhea_analysis.util as util
 from data.rhea.db import RheaDB
-from mechsearch.state_space import StateSpace, Path
+from mechsearch.state_space import StateSpace
+import mechsearch.graph as msg
 from scripts.announcements import *
 import json
 import mod
 from typing import Iterable
 import networkx as nx
-import re
-from networkx import Graph
-from networkx.algorithms.isomorphism import GraphMatcher
 
 
 def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
-                     aa_loc: str = "data/amino_acids.json", verbose: int = 0):
+                     aa_loc: str = "data/amino_acids.json", verbose: int = 0) -> StateSpace:
+    """
+    A function to load a state space.
+    """
     message("Loading grammar", verbose=verbose, verbose_level_threshold=2)
     grammar_aminos = Grammar()
     grammar_aminos.load_file(aa_loc)
@@ -32,6 +33,22 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
             verbose=verbose, verbose_level_threshold=2)
     state_space.freeze()
     return state_space
+
+
+def is_embeddable(a_rule: mod.Rule, query_rule: nx.Graph, verbose: int = 0) -> bool:
+    """
+    A function to check whether a query rule is embeddable into a given rule.
+    :param a_rule: A MOD rule
+    :param query_rule: reaction center of the query rule. Left and right side need to be merged
+    :param verbose: Verbose output
+    """
+    verbosity_level = 3
+    message(f"{a_rule.name} | id: {a_rule.id}", verbose=verbose, verbose_level_threshold=verbosity_level)
+    r_i_rxn_center = msg.FilteredRule(a_rule)
+    msg.add_reaction_center(r_i_rxn_center)
+
+    merged_rxn_center_r_i = merge_rule_left_right(r_i_rxn_center.to_mod_rule())
+    return subgraph_iso(merged_rxn_center_r_i, query_rule)
 
 
 def mod_labelled_graph_to_gml(vertices: Iterable[mod.Graph.Vertex], edges: Iterable[mod.Graph.Edge]):
@@ -87,33 +104,7 @@ def nx_to_gml(agraph: nx.Graph) -> str:
 
 
 def subgraph_iso(rule_side: nx.Graph, query_rule: nx.Graph,
-                 extra: str = None, verbose: int = 0):
-    verbosity = 3
-    all_checks = set()
-    subg_q_rule: nx.Graph
-    for _i, subg_q_rule in enumerate(seperate_nx_connected_components(query_rule)):
-        check = next(
-            (
-                True for subg_rule in seperate_nx_connected_components(rule_side)
-                if nx.algorithms.isomorphism.GraphMatcher(
-                subg_rule, subg_q_rule,
-                lambda node1, node2: re.match(node1["label"], node2["label"]) is not None,
-                lambda edge1, edge2: edge1["label"] == edge2["label"]
-            ).subgraph_is_isomorphic() is True
-            ), False
-        )
-        print(bool_color(check))
-        if check is True:
-            all_checks.add(check)
-
-    if False in all_checks or len(all_checks) == 0:
-        return False
-
-    return True
-
-
-def subgraph_iso_connected(rule_side: nx.Graph, query_rule: nx.Graph,
-                           verbose: int = 0):
+                 verbose: int = 0):
     verbosity = 3
     matcher = nx.algorithms.isomorphism.GraphMatcher(query_rule, rule_side,
                                                      lambda node1, node2: node1["label"] == node2["label"],
@@ -124,17 +115,10 @@ def subgraph_iso_connected(rule_side: nx.Graph, query_rule: nx.Graph,
     return iso
 
 
-def subgraph_iso_iter(rule_side: nx.Graph, query_rule: nx.Graph):
-    matcher = nx.algorithms.isomorphism.GraphMatcher(rule_side, query_rule,
-                                                     lambda node1, node2: re.match(node1["label"], node2["label"]) is not None,
-                                                     lambda edge1, edge2: edge1["label"] == edge2["label"])
-    for morphism in matcher.subgraph_monomorphisms_iter():
-        print(morphism)
-
-
-def merge_rule_left_right(_rule: mod.Rule) -> nx.Graph:
+def merge_rule_left_right(a_rule: mod.Rule) -> nx.Graph:
     """
     Merges left and right side of a mod rule and creates a NetworkX graph.
+    :param a_rule: A MOD rule.
     """
     _v: mod.Graph.Vertex
     _e: mod.Graph.Edge
@@ -144,12 +128,12 @@ def merge_rule_left_right(_rule: mod.Rule) -> nx.Graph:
     gml = "graph [\n"
 
     # Loop through vertices
-    for _v in _rule.vertices:
+    for _v in a_rule.vertices:
         lbl = f"({_v.left.stringLabel}{seperator}{_v.right.stringLabel})"
         gml += f"\tnode [ id {_v.id} label \"{lbl}\" ]\n"
 
     # Loop through edges
-    for _e in _rule.edges:
+    for _e in a_rule.edges:
         lbl_lr = {"left": None, "right": None}
         for _side in ["left", "right"]:
             try:
