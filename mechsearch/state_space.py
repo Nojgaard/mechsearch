@@ -518,7 +518,7 @@ class StateSpace:
 
     def statespace_using_rules(self, _rules: Iterable[mod.Rule]) -> List[StateSpaceEdge]:
         """
-        Returns a list of hyperedges which are using the specified rules.
+        Returns a list of state space edges which are using the specified rules.
         :param _rules: The rules we are looking for.
         """
         _keep = list()
