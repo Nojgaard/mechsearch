@@ -492,14 +492,26 @@ class StateSpace:
         if verbosity:
             print(f"\tFound {self.number_of_states} states, {len(self._expanded_nodes)} have been expanded...")
 
-    def edge_rules_derivation_graph(self) -> set:
+    def edges_derivation_graph(self) -> set:
         """
         Returns the edges of the derivation graph.
         """
-        return set(r for e in self.derivation_graph.edges for r in e.rules)
+        return set(self.derivation_graph.edges)
+
+    def vertices_derivation_graph(self) -> set:
+        """
+        Returns the vertices of the derivation graph.
+        """
+        return set(self.derivation_graph.vertices)
+
+    def edge_rules_derivation_graph(self) -> set:
+        """
+        Returns the rules of edges of the derivation graph.
+        """
+        return set(r for e in self.edges_derivation_graph() for r in e.rules)
 
     def vertice_graphs_derivation_graph(self) -> set:
         """
         Returns the vertice graphs of the derivation graph.
         """
-        return set(v.graph for v in self.derivation_graph.vertices)
+        return set(v.graph for v in self.vertices_derivation_graph())
