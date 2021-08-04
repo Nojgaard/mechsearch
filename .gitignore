@@ -17,3 +17,6 @@ state_spaces_fixed_amino/
 state_spaces/
 
 tmp/
+
+mod.location
+
