@@ -1,3 +1,4 @@
+import re
 from mechsearch.grammar import Grammar
 import scripts.rhea_analysis.util as util
 from data.rhea.db import RheaDB
@@ -10,11 +11,21 @@ from typing import Iterable
 import networkx as nx
 
 
+def check_rheaid_format(the_id: str):
+    if re.match(r"(RHEA)(:)(\d\d\d\d\d)", the_id) is not None:
+        return the_id
+    elif re.match(r"\d\d\d\d\d", the_id) is not None:
+        return f"RHEA:{the_id}"
+    else:
+        return None
+
+
 def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
                      aa_loc: str = "data/amino_acids.json", verbose: int = 0) -> StateSpace:
     """
-    A function to load a state space.
+    Load a state space.
     """
+    message(f"Loading state space for {rhea_id}")
     message("Loading grammar", verbose=verbose, verbose_level_threshold=2)
     grammar_aminos = Grammar()
     grammar_aminos.load_file(aa_loc)
@@ -26,7 +37,7 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
 
     message("Loading state space", verbose=verbose, verbose_level_threshold=2)
     with open(state_space_path) as f:
-        state_space = StateSpace.from_json(json.load(f), grammar, dg_path)
+        state_space = StateSpace.from_json(json.load(f), grammar, dg_path)  # TODO: Remove verbose output
     message(f"Analyzing StateSpace(|V| = {state_space.number_of_states}, |E| = {len(state_space.graph.edges)})",
             verbose=verbose, verbose_level_threshold=2)
     message(f"\t DG(|V| = {state_space.derivation_graph.numVertices}, |E| = {state_space.derivation_graph.numEdges})",
@@ -68,6 +79,17 @@ def seperate_mod_rule_to_gml(arule: mod.Rule):
         "left": mod_labelled_graph_to_gml([v for v in arule.left.vertices], [e for e in arule.left.edges]),
         "right": mod_labelled_graph_to_gml([v for v in arule.right.vertices], [e for e in arule.right.edges])
     }
+
+
+def mod_rule_left_right_iso(arule: mod.Rule) -> bool:
+    sep = seperate_mod_rule_to_gml(arule)
+    left = nx.parse_gml(sep["left"], label="id")
+    right = nx.parse_gml(sep["right"], label="id")
+    matcher = nx.algorithms.isomorphism.GraphMatcher(left, right,
+                                                     lambda node1, node2: node1["label"] == node2["label"],
+                                                     lambda edge1, edge2: edge1["label"] == edge2["label"]
+                                                     )
+    return matcher.is_isomorphic()
 
 
 def seperate_nx_connected_components(graph: nx.Graph):
