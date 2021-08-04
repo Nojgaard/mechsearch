@@ -516,14 +516,15 @@ class StateSpace:
         """
         return set(v.graph for v in self.vertices_derivation_graph())
 
-    def hyperedges_using_rules(self, _rules: Iterable[mod.Rule]) -> List[mod.DGHyperEdge]:
+    def statespace_using_rules(self, _rules: Iterable[mod.Rule]) -> List[StateSpaceEdge]:
         """
         Returns a list of hyperedges which are using the specified rules.
         :param _rules: The rules we are looking for.
         """
         _keep = list()
-        for _he in self.edges_derivation_graph():
-            test = next((True for _r in _rules if _r in {_ for _ in _he.rules}), False)
+        for _e in self.edges():
+            associated_rules = [_r for _t in _e.transitions for _r in _t.rules]
+            test = next((True for _r in _rules if _r in associated_rules), False)
             if test is True:
-                _keep.append(_he)
+                _keep.append(_e)
         return _keep
