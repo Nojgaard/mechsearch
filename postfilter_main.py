@@ -63,6 +63,7 @@ if __name__ == '__main__':
     keep_these_rules = list()
 
     if lr_iso is False:
+        message("Regular rule", verbose=verbose)
         # Extracting rule reaction center
         rule_rxn_center = msg.FilteredRule(query_rule)
         msg.add_reaction_center(rule_rxn_center)
@@ -83,7 +84,8 @@ if __name__ == '__main__':
 
     # Collect source and targets from the hyperedges based on the collected rules
     keep_sp_edges = state_space.statespace_using_rules(keep_these_rules)
-    message(f"Found {len(keep_sp_edges)} state space edges associated to the query.", verbose=verbose)
+    message(f"Found {len(keep_sp_edges)} state space edges associated to the reaction center of the query.",
+            verbose=verbose)
 
     # Check whether the query rule can be applied to the collected source graphs
 
@@ -106,7 +108,7 @@ if __name__ == '__main__':
                 a_path = Path([edge])
                 a_path.print_causality_graph()
     del builder
-    message(f"The query could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.",
+    message(f"\"{rule_loc}\" ({query_rule.name}) could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.",
             verbose=verbose, c="GREEN")
 
     if args.report:
@@ -115,7 +117,7 @@ if __name__ == '__main__':
         if not os.path.isdir(report_dir):
             os.mkdir(report_dir)
         with open(report_fname, "w") as f:
-            f.write(f"The query could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.")
+            f.write(f"\"{rule_loc}\" ({query_rule.name}) could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.")
         message(f"Wrote a short summary for {rhea_id} to \"{report_fname}\"",
                 verbose=verbose)
 
