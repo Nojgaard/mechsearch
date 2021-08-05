@@ -28,7 +28,7 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
     message(f"Loading state space for {rhea_id}", verbose=verbose)
     message("Loading grammar", verbose=verbose, verbose_level_threshold=2)
     grammar_aminos = Grammar()
-    grammar_aminos.load_file(aa_loc)
+    # grammar_aminos.load_file(aa_loc)  # TODO: DG loading is forgetting the old names when a graph is isomorphic to a known one
     grammar_rules = grammar_aminos + util.load_rules()
     rhea_db = RheaDB()
     reaction = rhea_db.get_reaction(rhea_id)
