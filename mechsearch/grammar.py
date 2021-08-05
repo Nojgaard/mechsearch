@@ -65,6 +65,9 @@ class Grammar:
 
     def __add__(self, other: 'Grammar') -> 'Grammar':
         result: Grammar = self.clone()
+        for alias, name in other.alias.items():
+            if alias not in result._graph_aliases:
+                result._graph_aliases[alias] = name
         list(result._get_graphs_by_isomorphism({graph.graph for graph in other._graphs}, True))
         result._rules.extend(other._rules)
         result._initial_multiset += GraphMultiset({result._get_graph_by_isomorphism(graph.graph, True): count for
@@ -210,6 +213,7 @@ class Grammar:
         clone._target_multiset = GraphMultiset(self.target_multiset.counter)
         clone._distance_matrix = self._distance_matrix
         clone._atom_id_map = dict(self._atom_id_map)
+        clone._graph_aliases = dict(self._graph_aliases)
 
         return clone
 

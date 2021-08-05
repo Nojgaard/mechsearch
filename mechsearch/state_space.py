@@ -312,6 +312,7 @@ class StateSpace:
         name2graph: Dict[str, mod.Graph] = {
             v.graph.name: v.graph for v in dg.vertices
         }
+
         name2graph.update({g.name: g for g in grammar.unwrapped_graphs})
         name2graph.update({key: grammar.get_graph(val).graph for key, val in grammar.alias.items()})
 
