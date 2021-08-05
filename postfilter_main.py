@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 from scripts.announcements import *
+
 # Tackling the MØD issue
 mod_loc_file = "mod.location"
 if not os.path.exists(mod_loc_file):
@@ -70,7 +71,8 @@ if __name__ == '__main__':
         merged_rxn_center_q_rule = merge_rule_left_right(rule_rxn_center.to_mod_rule())
         keep_these_rules = [r for r in used_rules if is_embeddable(r, merged_rxn_center_q_rule) is True]
 
-        message(f"Found {len(keep_these_rules)} rules where the query reaction center can be embedded.", verbose=verbose)
+        message(f"Found {len(keep_these_rules)} rules where the query reaction center can be embedded.",
+                verbose=verbose)
         if mod_print:
             for r in keep_these_rules:
                 r.print()
@@ -120,3 +122,6 @@ if __name__ == '__main__':
     # dg.print()
     if mod_print:
         call(f"mod_post -j {args.njobs}", shell=True)
+
+# TODOs
+# * Add support for R atoms
