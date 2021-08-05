@@ -16,10 +16,14 @@ from mechsearch.state_space import StateSpaceEdge, Path
 from subprocess import call
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Postfilter for State Spaces generated with mechsearch.",
+        usage="python postfilter_main.py -q <rule.gml> -r <RHEA ID> "
+              "[--mod_print [--state_soace_root [--report [-j [-v]"
+    )
     parser.add_argument("-v", "--verbose", action="count", default=0,
                         help="Verbose output")
-    parser.add_argument("--rheaid", type=str, required=True,
+    parser.add_argument("-r", "--rheaid", type=str, required=True,
                         help="The ID of the RHEA reaction")
     parser.add_argument("--mod_print", action="store_true")
     parser.add_argument("--state_space_root", type=str, default="state_spaces/",
@@ -104,13 +108,15 @@ if __name__ == '__main__':
             verbose=verbose, c="GREEN")
 
     if args.report:
-        if not os.path.isdir("short_summary"):
-            os.mkdir(os.path.join(os.getcwd(), "short_summary"))
-        with open(f"short_summary/{rhea_id}.txt", "w") as f:
+        report_dir = os.path.join(os.getcwd(), "short_summary")
+        report_fname = os.path.join(report_dir, f"{rhea_id}.txt")
+        if not os.path.isdir(report_dir):
+            os.mkdir(report_dir)
+        with open(report_fname, "w") as f:
             f.write(f"The query could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.")
-        message(f"Wrote a short summary for {rhea_id}", verbose=verbose)
+        message(f"Wrote a short summary for {rhea_id} to \"{report_fname}\"",
+                verbose=verbose)
 
-    dg.print()
-    print(dg.numEdges)
+    # dg.print()
     if mod_print:
         call(f"mod_post -j {args.njobs}", shell=True)
