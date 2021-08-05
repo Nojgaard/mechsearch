@@ -25,7 +25,7 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
     """
     Load a state space.
     """
-    message(f"Loading state space for {rhea_id}")
+    message(f"Loading state space for {rhea_id}", verbose=verbose)
     message("Loading grammar", verbose=verbose, verbose_level_threshold=2)
     grammar_aminos = Grammar()
     grammar_aminos.load_file(aa_loc)
