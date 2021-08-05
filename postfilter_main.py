@@ -47,7 +47,7 @@ if __name__ == '__main__':
     rule_loc = args.query
 
     # Loading data
-    state_space = load_state_sapce(rhea_id, state_space_loc, dg_loc, aa_loc="data/amino_acids_new_old_fusion.json",
+    state_space = load_state_sapce(rhea_id, state_space_loc, dg_loc,
                                    verbose=verbose)
     if isinstance(state_space, KeyError):
         err = f"{rhea_id}\t{state_space}"
