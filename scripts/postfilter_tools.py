@@ -20,6 +20,26 @@ def check_rheaid_format(the_id: str):
         return None
 
 
+def fix_aa_grammar(aa_loc: str, fix_loc: str = "data/aa_old_new_map.json") -> dict:
+    def return_graph_info(the_name: str):
+        for g in aa["graphs"]:
+            if g["name"] == the_name:
+                return g
+
+    with open(fix_loc, "r") as _f:
+        fix = json.load(_f)
+    with open(aa_loc, "r") as _f:
+        aa = json.load(_f)
+
+    all_names = {item["name"]: i for i, item in enumerate(aa["graphs"])}
+    for old in fix:
+        if old not in all_names:
+            append_this = return_graph_info(fix[old])
+            append_this["name"] = old
+            aa["graphs"].insert(0, append_this)
+    return aa
+
+
 def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
                      aa_loc: str = "data/amino_acids.json", verbose: int = 0) -> StateSpace:
     """
@@ -28,7 +48,8 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
     message(f"Loading state space for {rhea_id}", verbose=verbose)
     message("Loading grammar", verbose=verbose, verbose_level_threshold=2)
     grammar_aminos = Grammar()
-    grammar_aminos.load_file(aa_loc)  # TODO: DG loading is forgetting the old names when a graph is isomorphic to a known one
+
+    grammar_aminos.load(fix_aa_grammar(aa_loc))  # TODO: DG loading is forgetting the old names when a graph is isomorphic to a known one
     grammar_rules = grammar_aminos + util.load_rules()
     rhea_db = RheaDB()
     reaction = rhea_db.get_reaction(rhea_id)

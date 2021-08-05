@@ -220,22 +220,24 @@ class Grammar:
     def load_file(self, filepath: str, verbosity: int = 0):
         with open(filepath, "r") as file:
             json_object = json.load(file)
+            self.load(json_object, verbosity=verbosity)
 
-            if "graphs" in json_object:
-                self._load_graphs(json_object["graphs"], verbosity)
+    def load(self, json_object: dict, verbosity: int = 0):
+        if "graphs" in json_object:
+            self._load_graphs(json_object["graphs"], verbosity)
 
-            if "rules" in json_object:
-                self._load_rules(json_object["rules"], verbosity)
+        if "rules" in json_object:
+            self._load_rules(json_object["rules"], verbosity)
 
-            if "initial_state" in json_object:
-                if verbosity > 1:
-                    print(f"\tFound initial state specification. Loading...")
-                self._initial_multiset += self._load_multiset(json_object["initial_state"])
+        if "initial_state" in json_object:
+            if verbosity > 1:
+                print(f"\tFound initial state specification. Loading...")
+            self._initial_multiset += self._load_multiset(json_object["initial_state"])
 
-            if "target_state" in json_object:
-                if verbosity > 1:
-                    print(f"\tFount target state specification. Loading...")
-                self._target_multiset += self._load_multiset(json_object["target_state"])
+        if "target_state" in json_object:
+            if verbosity > 1:
+                print(f"\tFount target state specification. Loading...")
+            self._target_multiset += self._load_multiset(json_object["target_state"])
 
     def add2multiset(self, mod_graphs: Tuple[mod.Graph, ...]):
         graphs = self._get_graphs_by_isomorphism(mod_graphs, add=True)
