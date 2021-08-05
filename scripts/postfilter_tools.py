@@ -28,7 +28,7 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
     message(f"Loading state space for {rhea_id}", verbose=verbose)
     message("Loading grammar", verbose=verbose, verbose_level_threshold=2)
     grammar_aminos = Grammar()
-    # grammar_aminos.load_file(aa_loc)  # TODO: DG loading is forgetting the old names when a graph is isomorphic to a known one
+    grammar_aminos.load_file(aa_loc)  # TODO: DG loading is forgetting the old names when a graph is isomorphic to a known one
     grammar_rules = grammar_aminos + util.load_rules()
     rhea_db = RheaDB()
     reaction = rhea_db.get_reaction(rhea_id)
@@ -37,7 +37,10 @@ def load_state_sapce(rhea_id: str, state_space_path: str, dg_path: str,
 
     message("Loading state space", verbose=verbose, verbose_level_threshold=2)
     with open(state_space_path) as f:
-        state_space = StateSpace.from_json(json.load(f), grammar, dg_path)  # TODO: Remove verbose output
+        try:
+            state_space = StateSpace.from_json(json.load(f), grammar, dg_path)  # TODO: Remove verbose output
+        except KeyError as e:
+            return e
     message(f"Analyzing StateSpace(|V| = {state_space.number_of_states}, |E| = {len(state_space.graph.edges)})",
             verbose=verbose, verbose_level_threshold=2)
     message(f"\t DG(|V| = {state_space.derivation_graph.numVertices}, |E| = {state_space.derivation_graph.numEdges})",

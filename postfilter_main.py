@@ -1,5 +1,4 @@
 import os
-import sys
 import argparse
 from scripts.announcements import *
 
@@ -48,8 +47,13 @@ if __name__ == '__main__':
     rule_loc = args.query
 
     # Loading data
-    state_space = load_state_sapce(rhea_id, state_space_loc, dg_loc,
+    state_space = load_state_sapce(rhea_id, state_space_loc, dg_loc, aa_loc="data/amino_acids_new_old_fusion.json",
                                    verbose=verbose)
+    if isinstance(state_space, KeyError):
+        err = f"{rhea_id}\t{state_space}"
+        with open("missing_graphs.txt", "a") as _f:
+            _f.write(f"{err}\n")
+        error_m(err)
 
     # Extracting used rules from the state space
     used_rules = state_space.edge_rules_derivation_graph()
