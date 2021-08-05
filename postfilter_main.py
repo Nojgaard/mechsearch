@@ -12,7 +12,7 @@ sys.path.append(mod_loc)
 from scripts.postfilter_tools import *
 from mod import DGHyperEdge, DGVertex
 import mechsearch.graph as msg
-from mechsearch.state_space import StateSpaceEdge
+from mechsearch.state_space import StateSpaceEdge, Path
 from subprocess import call
 
 if __name__ == '__main__':
@@ -97,8 +97,8 @@ if __name__ == '__main__':
         if len(apply) > 0:
             apply_targets.append(apply)
             if mod_print:
-                for g in these_graphs:
-                    g.print()
+                a_path = Path([edge])
+                a_path.print_causality_graph()
     del builder
     message(f"The query could be applied to {len(apply_targets)} out of {len(keep_sp_edges)} sources.",
             verbose=verbose, c="GREEN")
@@ -111,5 +111,6 @@ if __name__ == '__main__':
         message(f"Wrote a short summary for {rhea_id}", verbose=verbose)
 
     dg.print()
+    print(dg.numEdges)
     if mod_print:
         call(f"mod_post -j {args.njobs}", shell=True)
