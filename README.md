@@ -54,3 +54,22 @@ mod -f scripts/rhea_analysis/print_paths.py
 
 For more information about how each script functions, please see the
 docstrings located in both scripts.
+
+# Postfilter for MechSearch
+
+The additional `postfilter_main.py` script can be used to explore a state sapce created with the `MechSearch` package.
+It allows the user to query for changes in the state space or look for interesting patterns in the state space.
+The input is provided as a GML rule
+
+Use the following command to run the script.
+
+```shell
+python postfilter_main.py -q <rule.gml> -r <RHEA ID>
+```
+
+Where `<rule.gml>` is the path to the query rule and `<RHEA ID>` is the RHEA ID of the reaction in order to access the correct state space.
+
+Use the following commad to show all available command line options.
+```shell
+python postfilter_main.py --help
+```
