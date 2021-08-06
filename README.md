@@ -61,6 +61,8 @@ The additional `postfilter_main.py` script can be used to explore a state sapce 
 It allows the user to query for changes in the state space or look for interesting patterns in the state space.
 The input is provided as a GML rule
 
+A file with the location of `MØD` should be stored in the root directory under the name `mod.location`.
+
 Use the following command to run the script.
 
 ```shell
