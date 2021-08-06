@@ -86,12 +86,12 @@ def is_embeddable(a_rule: mod.Rule, query_rule: nx.Graph, verbose: int = 0) -> b
     return subgraph_iso(merged_rxn_center_r_i, query_rule)
 
 
-def mod_labelled_graph_to_gml(vertices: Iterable[mod.Graph.Vertex], edges: Iterable[mod.Graph.Edge]):
+def mod_labelled_graph_to_gml(mod_graph: mod.Graph) -> str:
     out = "graph[\n"
-    for v in vertices:
+    for v in mod_graph.vertices:
         out += f"\tnode[ id {v.id} label \"{v.stringLabel}\" ]\n"
 
-    for e in edges:
+    for e in mod_graph.edges:
         out += f"\tedge [ source {e.source.id} target {e.target.id} label \"{e.stringLabel}\" ]\n"
 
     out += "]"
@@ -100,8 +100,8 @@ def mod_labelled_graph_to_gml(vertices: Iterable[mod.Graph.Vertex], edges: Itera
 
 def seperate_mod_rule_to_gml(arule: mod.Rule):
     return {
-        "left": mod_labelled_graph_to_gml([v for v in arule.left.vertices], [e for e in arule.left.edges]),
-        "right": mod_labelled_graph_to_gml([v for v in arule.right.vertices], [e for e in arule.right.edges])
+        "left": mod_labelled_graph_to_gml(arule.left),
+        "right": mod_labelled_graph_to_gml(arule.right)
     }
 
 
