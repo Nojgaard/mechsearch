@@ -7,7 +7,7 @@ import mechsearch.graph as msg
 from scripts.announcements import *
 import json
 import mod
-from typing import Iterable
+from typing import Iterable, List
 import networkx as nx
 
 
@@ -191,3 +191,10 @@ def merge_rule_left_right(a_rule: mod.Rule) -> nx.Graph:
         gml += f"\tedge [ source {_e.source.id} target {_e.target.id} label \"{lbl}\" ]\n"
     gml += "]"
     return nx.parse_gml(gml, label="id")
+
+
+def get_graphs_from_side(statespace: StateSpace, the_side: str) -> List[mod.Graph]:
+    return [
+        g.graph for _edge in statespace.edges()
+        for g in getattr(_edge, the_side).state.graph_multiset.graphs
+    ]
